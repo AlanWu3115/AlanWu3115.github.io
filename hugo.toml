@@ -1,19 +1,14 @@
-<<<<<<< HEAD
-baseURL = "https://example.org/"
+baseURL = "https://alanwu3115.github.io/"
 languageCode = "en-us"
 title = "AlanWu's Site"
-# 主题以模块形式引入，不再使用 theme = "ananke"
+theme = "docsy"
+disableGitInfo = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
 
 [caches]
   [caches.images]
     dir = ":cacheDir/images"
-
-
-theme = "docsy"
-
-disableGitInfo = true
-
-
 
 [module]
   proxy = "direct"
@@ -23,53 +18,27 @@ disableGitInfo = true
   [[module.imports]]
     path = "github.com/google/docsy"
     disable = false
-  # 可选：若本地开发 Docsy，可使用 workspace
-  # workspace = "docsy.work"
 
-# 全局参数配置
 [params]
-  # Light/Dark 模式切换按钮
   [params.ui]
     showLightDarkModeMenu = true
-    # navbar 透明效果关闭可如下配置
-    # navbar_translucent_over_cover_disable = true
-
-  # 版本切换下拉菜单
   version_menu = "版本"
   [[params.versions]]
     version = "latest"
-    url     = "https://example.org"
+    url = "https://alanwu3115.github.io"
   [[params.versions]]
     version = "v1.0"
-    url     = "https://v1.example.org"
+    url = "https://v1.example.org"
 
-# 高亮代码设置与 Markdown 渲染
 [markup]
   [markup.highlight]
-    style      = "tango"
+    style = "tango"
     guessSyntax = true
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
 
-# 可选：若要集成 Google Custom Search
-# gcs_engine_id = "你的搜索引擎ID"
-
-# 当前未设置多语言结构，可考虑添加以下节
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = false
-
 [params.custom]
-coverImageFull = "https://api.fungit.org/covers.php"
-coverImageSmall = "https://api.fungit.org/covers.php?type=small"
-=======
-baseURL = 'https://example.org/'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
-theme = 'ananke'
-
-[caches]
-[caches.images]
-dir = ':cacheDir/images'
->>>>>>> 87727f2c2575e5fe6baf704bb542044534a2dea6
+  coverImageFull = "https://api.fungit.org/covers.php"
+  coverImageSmall = "https://api.fungit.org/covers.php?type=small"
 
