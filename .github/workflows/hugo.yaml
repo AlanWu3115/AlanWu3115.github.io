@@ -49,16 +49,27 @@ jobs:
         with:
           node-version: "18"
 
-      - name: 安装 Node.js 依赖 / 安装 PostCSS（若无 package-lock.json 则临时安装必要包）
+      - name: 安装 Node 依赖 / 确保 PostCSS 可用
         run: |
+          # 如果仓库声明了依赖（更可靠），优先使用 npm ci
           if [[ -f package-lock.json || -f npm-shrinkwrap.json ]]; then
+            echo "Found lockfile -> npm ci"
             npm ci
+          elif [[ -f package.json ]]; then
+            echo "Found package.json but no lockfile -> npm install"
+            npm install
           else
-            # 如果仓库没有 package.json / lock 文件，临时安装 postcss-cli 及常用插件以便构建能运行
-            npm install postcss postcss-cli autoprefixer --no-save
+            echo "No package.json -> install postcss-cli globally so Hugo can call postcss"
+            npm install -g postcss-cli postcss autoprefixer
           fi
-          # 验证 postcss 是否可用（失败会让 job 失败并输出错误）
-          npx postcss --version || true
+
+          # 验证 postcss 命令是否存在（出错会使 step 失败）
+          if command -v postcss >/dev/null 2>&1; then
+            echo "postcss is available: $(postcss --version || echo 'version unknown')"
+          else
+            echo "postcss not found via PATH. Attempting to use npx to check..."
+            npx postcss --version
+          fi
 
       - name: 使用Hugo构建
         env:
