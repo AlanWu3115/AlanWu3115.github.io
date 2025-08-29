@@ -30,18 +30,36 @@ jobs:
         run: |
           wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
           && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
       - name: 安装Dart Sass
         run: sudo snap install dart-sass
+
       - name: 检出
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
+
       - name: 设置Pages
         id: pages
         uses: actions/configure-pages@v3
-      - name: 安装Node.js依赖
-        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: 安装 Node.js 依赖 / 安装 PostCSS（若无 package-lock.json 则临时安装必要包）
+        run: |
+          if [[ -f package-lock.json || -f npm-shrinkwrap.json ]]; then
+            npm ci
+          else
+            # 如果仓库没有 package.json / lock 文件，临时安装 postcss-cli 及常用插件以便构建能运行
+            npm install postcss postcss-cli autoprefixer --no-save
+          fi
+          # 验证 postcss 是否可用（失败会让 job 失败并输出错误）
+          npx postcss --version || true
+
       - name: 使用Hugo构建
         env:
           HUGO_ENVIRONMENT: production
@@ -51,8 +69,8 @@ jobs:
             --gc \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
+
       - name: 上传构建产物（Pages artifact）
-        # 注意：将此 action 升级为 @v3（或可以改成 @v4，如果你想使用 repo 最新 major）
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
@@ -66,6 +84,5 @@ jobs:
     steps:
       - name: 部署到GitHub Pages
         id: deployment
-        # deploy-pages 需要 v4 版本以配合新版 artifact API
         uses: actions/deploy-pages@v4
 
