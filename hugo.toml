@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 baseURL = "https://example.org/"
 languageCode = "en-us"
 title = "AlanWu's Site"
@@ -61,4 +62,14 @@ defaultContentLanguageInSubdir = false
 [params.custom]
 coverImageFull = "https://api.fungit.org/covers.php"
 coverImageSmall = "https://api.fungit.org/covers.php?type=small"
+=======
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'My New Hugo Site'
+theme = 'ananke'
+
+[caches]
+[caches.images]
+dir = ':cacheDir/images'
+>>>>>>> 87727f2c2575e5fe6baf704bb542044534a2dea6
 
