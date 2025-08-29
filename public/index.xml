@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-<<<<<<< HEAD
     <title>主页 on AlanWu&#39;s Site</title>
     <link>http://localhost:1313/</link>
     <description>Recent content in 主页 on AlanWu&#39;s Site</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 29 Aug 2025 17:03:54 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 29 Aug 2025 19:47:09 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Linux 环境安装配置 Node.js 详细教程</title>
@@ -17,11 +16,32 @@
       <description>&lt;h2 id=&#34;一nodejs-是什么&#34;&gt;一、Node.js 是什么？&lt;/h2&gt;&#xA;&lt;p&gt;Node.js 是一个基于 Chrome V8 引擎的 &lt;strong&gt;JavaScript 运行环境&lt;/strong&gt;。&lt;br&gt;&#xA;它采用事件驱动和非阻塞式 I/O 模型，适合构建高性能、分布式应用。&lt;/p&gt;&#xA;&lt;p&gt;通俗来说，Node.js 让 JavaScript 不再局限于浏览器端，而是可以在服务端与 PHP、Python、Ruby 等语言平起平坐。归根到底，它就是一个 JavaScript 脚本语言的运行环境。&lt;/p&gt;&#xA;&lt;h2 id=&#34;二npm-是什么&#34;&gt;二、npm 是什么？&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;npm&lt;/code&gt; 是 Node.js 默认的包管理工具（package manager），类似于木工程里的 Maven。&lt;br&gt;&#xA;它让我们在开发过程中，能够通过简单命令安装第三方模块，而不用手动下载、解压、管理依赖。&lt;/p&gt;&#xA;&lt;p&gt;当模块之间存在相互依赖关系，npm 会自动处理依赖树，极大减轻维护难度。&lt;/p&gt;&#xA;&lt;h2 id=&#34;三环境搭建步骤&#34;&gt;三、环境搭建步骤&lt;/h2&gt;&#xA;&lt;p&gt;下面以 &lt;strong&gt;CentOS 7 + Node.js v18.20.3&lt;/strong&gt; 为例说明安装流程。&lt;/p&gt;&#xA;&lt;h3 id=&#34;31-下载安装包&#34;&gt;3.1 下载安装包&lt;/h3&gt;&#xA;&lt;p&gt;访问 Node.js 官方下载页：&lt;br&gt;&#xA;&lt;a href=&#34;https://nodejs.org/en/download/package-manager&#34;&gt;https://nodejs.org/en/download/package-manager&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;若你看不到图片示意，可前往官网预览。&lt;br&gt;&#xA;本教程采用以下命令下载：&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;wget https://nodejs.org/dist/v18.20.3/node-v18.20.3-linux-x64.tar.xz&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     <item>
+      <title>My First Post3</title>
+      <link>http://localhost:1313/posts/my-first-post3/</link>
+      <pubDate>Fri, 29 Aug 2025 19:47:09 +0800</pubDate>
+      <guid>http://localhost:1313/posts/my-first-post3/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>My First2 Post</title>
+      <link>http://localhost:1313/posts/my-first2-post/</link>
+      <pubDate>Fri, 29 Aug 2025 19:40:21 +0900</pubDate>
+      <guid>http://localhost:1313/posts/my-first2-post/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>My First Post</title>
       <link>http://localhost:1313/posts/my-first-post/</link>
       <pubDate>Fri, 29 Aug 2025 17:03:54 +0800</pubDate>
       <guid>http://localhost:1313/posts/my-first-post/</guid>
       <description></description>
+    </item>
+    <item>
+      <title>Hello World</title>
+      <link>http://localhost:1313/blog/hello-world/</link>
+      <pubDate>Sat, 19 Jul 2025 15:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/blog/hello-world/</guid>
+      <description>&lt;p&gt;这是我的第一篇博客文章！&lt;/p&gt;</description>
     </item>
     <item>
       <title>我的第一篇文章</title>
@@ -30,13 +50,5 @@
       <guid>http://localhost:1313/posts/install-nodejs-linux/</guid>
       <description></description>
     </item>
-=======
-    <title>My New Hugo Site</title>
-    <link>http://localhost:1313/</link>
-    <description>Recent content on My New Hugo Site</description>
-    <generator>Hugo</generator>
-    <language>en-us</language>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
->>>>>>> 87727f2c2575e5fe6baf704bb542044534a2dea6
   </channel>
 </rss>
