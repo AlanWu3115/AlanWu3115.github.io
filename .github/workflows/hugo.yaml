@@ -3,7 +3,7 @@ name: 发布Hugo网站到Pages
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 permissions:
