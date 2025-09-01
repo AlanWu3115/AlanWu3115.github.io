@@ -47,6 +47,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          cache: "npm"
 
       - name: 安装 Node 依赖 / 确保 PostCSS 可用
         run: |
