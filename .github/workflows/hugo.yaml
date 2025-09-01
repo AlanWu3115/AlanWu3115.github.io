@@ -24,76 +24,123 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HUGO_VERSION: 0.149.0
+
     steps:
-      - name: 安装Hugo CLI
-        run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
-          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
-
-      - name: 安装Dart Sass
-        run: sudo snap install dart-sass
-
+      # 1) 检出代码（放最前面，后续步骤依赖）
       - name: 检出
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
+      # 2) Configure Pages -> 提供 base_url 等 outputs
       - name: 设置Pages
         id: pages
         uses: actions/configure-pages@v3
 
+      # 3) Setup Node（不启用 cache，以免因缺少 lockfile 导致失败）
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
 
-      - name: 安装 Node 依赖 / 确保 PostCSS 可用
+      # 4) 安装 Hugo CLI（Extended）
+      - name: 安装Hugo CLI
+        run: |
+          set -euo pipefail
+          echo "Installing Hugo ${HUGO_VERSION} (extended) ..."
+          wget -q -O ${{ runner.temp }}/hugo.deb "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          sudo dpkg -i ${{ runner.temp }}/hugo.deb
+          hugo version
+
+      # 5) Debug: 列出 repo 根和 themes（可选，首次运行建议保留）
+      - name: Debug: 列出仓库结构（根 & themes）
+        run: |
+          pwd
+          echo "----- repo root -----"
+          ls -lah
+          echo "----- themes -----"
+          ls -lah themes || true
+          echo "----- check package files -----"
+          [ -f package.json ] && echo "package.json at root" || echo "no package.json at root"
+          [ -f package-lock.json ] && echo "package-lock.json exists at root" || echo "no package-lock.json at root"
+
+      # 6) 安装 Node 依赖并确保 postcss/sass 可用（先在根，若 themes 有 package.json 则尝试 themes）
+      - name: 安装 Node 依赖 / 确保 PostCSS & Sass 可用
         run: |
           set -euo pipefail
 
-          # 1) 安装依赖（优先 lockfile -> package.json -> 无则跳过）
-          if [[ -f package-lock.json || -f npm-shrinkwrap.json ]]; then
-            echo "Found lockfile -> npm ci"
-            npm ci
-          elif [[ -f package.json ]]; then
-            echo "Found package.json but no lockfile -> npm install"
-            npm install
-          else
-            echo "No package.json -> skipping npm install here (will ensure postcss locally later)"
+          install_if_needed() {
+            local dir="$1"
+            if [[ -f "${dir}/package-lock.json" || -f "${dir}/npm-shrinkwrap.json" ]]; then
+              echo "Found lockfile in ${dir} -> npm ci"
+              (cd "$dir" && npm ci)
+            elif [[ -f "${dir}/package.json" ]]; then
+              echo "Found package.json in ${dir} but no lockfile -> npm install"
+              (cd "$dir" && npm install)
+            else
+              echo "No package.json in ${dir} -> skipping npm install there"
+            fi
+          }
+
+          # 1) 尝试在 repo 根安装（常见）
+          install_if_needed "."
+
+          # 2) 如果 themes/docsy 存在 package.json，也尝试安装（一些示例会把依赖放在主题内）
+          if [[ -d "themes/docsy" ]]; then
+            install_if_needed "themes/docsy"
           fi
 
-          # 2) 确保 node_modules/.bin/postcss 存在；若不存在，临时安装到 node_modules（不写入 package.json）
-          if [[ -x "./node_modules/.bin/postcss" ]]; then
-            echo "postcss found in node_modules/.bin"
+          # 3) 确保 postcss 可用（优先本地 node_modules/.bin）
+          if [[ -x "./node_modules/.bin/postcss" ]] || [[ -x "themes/docsy/node_modules/.bin/postcss" ]]; then
+            echo "postcss found locally"
           else
-            echo "postcss not found locally -> installing postcss-cli, postcss, autoprefixer (no-save)"
-            npm install --no-save postcss-cli postcss autoprefixer
+            echo "postcss not found locally -> install postcss-cli postcss autoprefixer locally (no-save)"
+            npm install --no-save postcss-cli postcss autoprefixer || true
           fi
 
-          # 3) 最终验证（优先本地二进制）
+          # 4) 确保 sass/dart-sass 可用：优先本地，若都没有则临时安装
+          if command -v sass >/dev/null 2>&1 || [[ -x "./node_modules/.bin/sass" ]] || [[ -x "themes/docsy/node_modules/.bin/sass" ]]; then
+            echo "sass available"
+          else
+            echo "sass not found -> installing sass (no-save)"
+            npm install --no-save sass || true
+          fi
+
+          # 5) Final checks
           if [[ -x "./node_modules/.bin/postcss" ]]; then
-            echo "Using local postcss:"
-            ./node_modules/.bin/postcss --version
+            ./node_modules/.bin/postcss --version || true
           elif command -v postcss >/dev/null 2>&1; then
-            echo "Using global postcss:"
-            postcss --version
+            postcss --version || true
           else
-            echo "Attempting with npx (may fail if no executable found):"
-            npx postcss --version
+            echo "postcss not available in PATH"
           fi
 
+      # 7) 使用 Hugo 构建（使用 configure-pages 输出的 base_url）
       - name: 使用Hugo构建
         env:
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
         run: |
-          hugo \
-            --gc \
-            --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+          set -euo pipefail
+          echo "Building site with hugo..."
+          hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
 
+      # 8) 禁用 Jekyll 处理（创建 public/.nojekyll）
+      - name: Disable Jekyll processing (create .nojekyll)
+        run: |
+          mkdir -p public
+          touch public/.nojekyll
+          echo "Created public/.nojekyll:"
+          ls -lah public/.nojekyll || true
+
+      # 9) Debug: 列出 public 内容（可选）
+      - name: Debug: show public contents (optional)
+        run: |
+          echo "---- public listing (first 200 lines) ----"
+          ls -lah public | sed -n '1,200p' || true
+
+      # 10) 上传构建产物（Pages artifact）
       - name: 上传构建产物（Pages artifact）
         uses: actions/upload-pages-artifact@v4
         with:
@@ -109,3 +156,4 @@ jobs:
       - name: 部署到GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+

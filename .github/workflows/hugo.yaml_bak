@@ -1,0 +1,111 @@
+name: 发布Hugo网站到Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.149.0
+    steps:
+      - name: 安装Hugo CLI
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
+      - name: 安装Dart Sass
+        run: sudo snap install dart-sass
+
+      - name: 检出
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: 设置Pages
+        id: pages
+        uses: actions/configure-pages@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: 安装 Node 依赖 / 确保 PostCSS 可用
+        run: |
+          set -euo pipefail
+
+          # 1) 安装依赖（优先 lockfile -> package.json -> 无则跳过）
+          if [[ -f package-lock.json || -f npm-shrinkwrap.json ]]; then
+            echo "Found lockfile -> npm ci"
+            npm ci
+          elif [[ -f package.json ]]; then
+            echo "Found package.json but no lockfile -> npm install"
+            npm install
+          else
+            echo "No package.json -> skipping npm install here (will ensure postcss locally later)"
+          fi
+
+          # 2) 确保 node_modules/.bin/postcss 存在；若不存在，临时安装到 node_modules（不写入 package.json）
+          if [[ -x "./node_modules/.bin/postcss" ]]; then
+            echo "postcss found in node_modules/.bin"
+          else
+            echo "postcss not found locally -> installing postcss-cli, postcss, autoprefixer (no-save)"
+            npm install --no-save postcss-cli postcss autoprefixer
+          fi
+
+          # 3) 最终验证（优先本地二进制）
+          if [[ -x "./node_modules/.bin/postcss" ]]; then
+            echo "Using local postcss:"
+            ./node_modules/.bin/postcss --version
+          elif command -v postcss >/dev/null 2>&1; then
+            echo "Using global postcss:"
+            postcss --version
+          else
+            echo "Attempting with npx (may fail if no executable found):"
+            npx postcss --version
+          fi
+
+      - name: 使用Hugo构建
+        env:
+          HUGO_ENVIRONMENT: production
+          HUGO_ENV: production
+        run: |
+          hugo \
+            --gc \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      - name: 上传构建产物（Pages artifact）
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./public
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: 部署到GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
