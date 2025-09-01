@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Docsy Example
 
 [Docsy][] is a [Hugo theme module][] for technical documentation sites, providing easy
@@ -185,3 +186,7 @@ See this [section](https://www.docsy.dev/docs/get-started/docsy-as-module/instal
 [Hugo theme module]: https://gohugo.io/hugo-modules/use-modules/#use-a-module-for-a-theme
 [Netlify]: https://netlify.com
 [Docker Compose documentation]: https://docs.docker.com/compose/gettingstarted/
+=======
+# AlanWu3115.github.io
+personal blog
+>>>>>>> 91f65d7644c3978f185834b21c940c80372aa197
